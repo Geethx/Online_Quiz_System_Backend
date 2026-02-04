@@ -19,23 +19,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class AssignmentService {
-    
+
     @Autowired
     private AssignmentRepository assignmentRepository;
-    
+
     @Autowired
     private QuestionRepository questionRepository;
-    
+
     @Autowired
     private QuestionService questionService;
-    
+
     // Get all assignments
     public List<AssignmentDTO> getAllAssignments() {
         return assignmentRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     // Get available assignments (based on current time)
     public List<AssignmentDTO> getAvailableAssignments() {
         LocalDateTime now = LocalDateTime.now();
@@ -43,23 +43,23 @@ public class AssignmentService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     // Get assignment by ID
     public AssignmentDTO getAssignmentById(Long id) {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
         return convertToDTO(assignment);
     }
-    
+
     // Check if assignment is available
     public boolean isAssignmentAvailable(Long id) {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
-        
+
         LocalDateTime now = LocalDateTime.now();
         return !now.isBefore(assignment.getStartTime()) && !now.isAfter(assignment.getEndTime());
     }
-    
+
     // Create new assignment
     @Transactional
     public AssignmentDTO createAssignment(CreateAssignmentDTO createDTO) {
@@ -67,14 +67,25 @@ public class AssignmentService {
         if (createDTO.getEndTime().isBefore(createDTO.getStartTime())) {
             throw new RuntimeException("End time must be after start time");
         }
-        
+
+        if (createDTO.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Start time cannot be in the past");
+        }
+
+        // Validate duration doesn't exceed assignment window
+        long minutesBetween = java.time.Duration.between(createDTO.getStartTime(), createDTO.getEndTime()).toMinutes();
+        if (createDTO.getDuration() > minutesBetween) {
+            throw new RuntimeException("Duration (" + createDTO.getDuration()
+                    + " minutes) cannot exceed the time window (" + minutesBetween + " minutes)");
+        }
+
         Assignment assignment = new Assignment();
         assignment.setName(createDTO.getName());
         assignment.setDescription(createDTO.getDescription());
         assignment.setStartTime(createDTO.getStartTime());
         assignment.setEndTime(createDTO.getEndTime());
         assignment.setDuration(createDTO.getDuration());
-        
+
         // Add selected questions
         Set<Question> questions = new HashSet<>();
         for (Long questionId : createDTO.getQuestionIds()) {
@@ -83,28 +94,35 @@ public class AssignmentService {
             questions.add(question);
         }
         assignment.setQuestions(questions);
-        
+
         Assignment savedAssignment = assignmentRepository.save(assignment);
         return convertToDTO(savedAssignment);
     }
-    
+
     // Update assignment
     @Transactional
     public AssignmentDTO updateAssignment(Long id, CreateAssignmentDTO updateDTO) {
         Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
-        
+
         // Validate time logic
         if (updateDTO.getEndTime().isBefore(updateDTO.getStartTime())) {
             throw new RuntimeException("End time must be after start time");
         }
-        
+
+        // Validate duration doesn't exceed assignment window
+        long minutesBetween = java.time.Duration.between(updateDTO.getStartTime(), updateDTO.getEndTime()).toMinutes();
+        if (updateDTO.getDuration() > minutesBetween) {
+            throw new RuntimeException("Duration (" + updateDTO.getDuration()
+                    + " minutes) cannot exceed the time window (" + minutesBetween + " minutes)");
+        }
+
         assignment.setName(updateDTO.getName());
         assignment.setDescription(updateDTO.getDescription());
         assignment.setStartTime(updateDTO.getStartTime());
         assignment.setEndTime(updateDTO.getEndTime());
         assignment.setDuration(updateDTO.getDuration());
-        
+
         // Update questions
         Set<Question> questions = new HashSet<>();
         for (Long questionId : updateDTO.getQuestionIds()) {
@@ -113,11 +131,11 @@ public class AssignmentService {
             questions.add(question);
         }
         assignment.setQuestions(questions);
-        
+
         Assignment updatedAssignment = assignmentRepository.save(assignment);
         return convertToDTO(updatedAssignment);
     }
-    
+
     // Delete assignment
     @Transactional
     public void deleteAssignment(Long id) {
@@ -126,7 +144,7 @@ public class AssignmentService {
         }
         assignmentRepository.deleteById(id);
     }
-    
+
     // Convert Entity to DTO
     private AssignmentDTO convertToDTO(Assignment assignment) {
         AssignmentDTO dto = new AssignmentDTO();
@@ -136,24 +154,24 @@ public class AssignmentService {
         dto.setStartTime(assignment.getStartTime());
         dto.setEndTime(assignment.getEndTime());
         dto.setDuration(assignment.getDuration());
-        
+
         // Convert questions (with answers for admin view)
         List<QuestionDTO> questionDTOs = assignment.getQuestions().stream()
                 .map(questionService::convertToDTOWithoutAnswer) // Hide correct answers
                 .collect(Collectors.toList());
         dto.setQuestions(questionDTOs);
-        
+
         // Calculate total points
         int totalPoints = assignment.getQuestions().stream()
                 .mapToInt(Question::getPoints)
                 .sum();
         dto.setTotalPoints(totalPoints);
-        
+
         // Check if available
         LocalDateTime now = LocalDateTime.now();
         boolean isAvailable = !now.isBefore(assignment.getStartTime()) && !now.isAfter(assignment.getEndTime());
         dto.setIsAvailable(isAvailable);
-        
+
         return dto;
     }
 }
