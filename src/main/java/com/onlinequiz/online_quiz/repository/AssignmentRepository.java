@@ -10,9 +10,13 @@ import java.util.List;
 
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
-    
-    @Query("SELECT a FROM Assignment a WHERE a.startTime <= :currentTime AND a.endTime >= :currentTime")
+
+    @Query("SELECT DISTINCT a FROM Assignment a LEFT JOIN FETCH a.questions WHERE a.startTime <= :currentTime AND a.endTime >= :currentTime")
     List<Assignment> findAvailableAssignments(@Param("currentTime") LocalDateTime currentTime);
-    
+
+    @Query("SELECT DISTINCT a FROM Assignment a LEFT JOIN FETCH a.questions ORDER BY a.createdAt DESC")
     List<Assignment> findAllByOrderByCreatedAtDesc();
+
+    @Query("SELECT DISTINCT a FROM Assignment a LEFT JOIN FETCH a.questions WHERE a.id = :id")
+    java.util.Optional<Assignment> findByIdWithQuestions(@Param("id") Long id);
 }

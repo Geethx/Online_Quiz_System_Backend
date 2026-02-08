@@ -46,14 +46,14 @@ public class AssignmentService {
 
     // Get assignment by ID
     public AssignmentDTO getAssignmentById(Long id) {
-        Assignment assignment = assignmentRepository.findById(id)
+        Assignment assignment = assignmentRepository.findByIdWithQuestions(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
         return convertToDTO(assignment);
     }
 
     // Check if assignment is available
     public boolean isAssignmentAvailable(Long id) {
-        Assignment assignment = assignmentRepository.findById(id)
+        Assignment assignment = assignmentRepository.findByIdWithQuestions(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
 
         LocalDateTime now = LocalDateTime.now();
@@ -102,7 +102,7 @@ public class AssignmentService {
     // Update assignment
     @Transactional
     public AssignmentDTO updateAssignment(Long id, CreateAssignmentDTO updateDTO) {
-        Assignment assignment = assignmentRepository.findById(id)
+        Assignment assignment = assignmentRepository.findByIdWithQuestions(id)
                 .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + id));
 
         // Validate time logic
@@ -157,6 +157,7 @@ public class AssignmentService {
 
         // Convert questions (with answers for admin view)
         List<QuestionDTO> questionDTOs = assignment.getQuestions().stream()
+                .sorted((q1, q2) -> q1.getId().compareTo(q2.getId())) // Sort by question ID
                 .map(questionService::convertToDTOWithoutAnswer) // Hide correct answers
                 .collect(Collectors.toList());
         dto.setQuestions(questionDTOs);
