@@ -207,6 +207,7 @@ public class AttemptService {
         dto.setSelectedAnswer(answer.getSelectedAnswer());
         dto.setMarkedForReview(answer.getMarkedForReview());
         dto.setIsCorrect(answer.getIsCorrect());
+        dto.setCorrectOption(answer.getQuestion().getCorrectOption()); // Include correct answer
         return dto;
     }
 }

@@ -6,23 +6,58 @@ public class AnswerDTO {
     private Integer selectedAnswer;
     private Boolean markedForReview;
     private Boolean isCorrect;
-    
+    private Integer correctOption; // Include correct answer for results view
+
     // Constructors
-    public AnswerDTO() {}
-    
+    public AnswerDTO() {
+    }
+
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public Long getQuestionId() { return questionId; }
-    public void setQuestionId(Long questionId) { this.questionId = questionId; }
-    
-    public Integer getSelectedAnswer() { return selectedAnswer; }
-    public void setSelectedAnswer(Integer selectedAnswer) { this.selectedAnswer = selectedAnswer; }
-    
-    public Boolean getMarkedForReview() { return markedForReview; }
-    public void setMarkedForReview(Boolean markedForReview) { this.markedForReview = markedForReview; }
-    
-    public Boolean getIsCorrect() { return isCorrect; }
-    public void setIsCorrect(Boolean isCorrect) { this.isCorrect = isCorrect; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
+    }
+
+    public Integer getSelectedAnswer() {
+        return selectedAnswer;
+    }
+
+    public void setSelectedAnswer(Integer selectedAnswer) {
+        this.selectedAnswer = selectedAnswer;
+    }
+
+    public Boolean getMarkedForReview() {
+        return markedForReview;
+    }
+
+    public void setMarkedForReview(Boolean markedForReview) {
+        this.markedForReview = markedForReview;
+    }
+
+    public Boolean getIsCorrect() {
+        return isCorrect;
+    }
+
+    public void setIsCorrect(Boolean isCorrect) {
+        this.isCorrect = isCorrect;
+    }
+
+    public Integer getCorrectOption() {
+        return correctOption;
+    }
+
+    public void setCorrectOption(Integer correctOption) {
+        this.correctOption = correctOption;
+    }
 }
