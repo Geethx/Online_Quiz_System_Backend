@@ -52,11 +52,9 @@ public class AuthService implements UserDetailsService {
             throw new RuntimeException("Email already exists");
         }
 
-        // Determine role - default to STUDENT if not specified
+        // Determine role - Hardcoded to STUDENT for security
+        // Admin accounts must be created manually in the database
         Role role = Role.STUDENT;
-        if (registerDTO.getRole() != null && registerDTO.getRole().equalsIgnoreCase("ADMIN")) {
-            role = Role.ADMIN;
-        }
 
         // Create user
         User user = new User(
