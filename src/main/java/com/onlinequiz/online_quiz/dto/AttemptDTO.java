@@ -15,10 +15,8 @@ public class AttemptDTO {
     private Integer remainingTimeSeconds;
     private List<AnswerDTO> answers;
     
-    // Constructors
     public AttemptDTO() {}
     
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

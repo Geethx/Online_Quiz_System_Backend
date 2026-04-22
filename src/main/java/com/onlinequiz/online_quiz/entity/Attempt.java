@@ -19,6 +19,10 @@ public class Attempt {
     @JsonIgnore
     private Assignment assignment;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 
@@ -73,6 +77,14 @@ public class Attempt {
 
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDateTime getStartedAt() {
