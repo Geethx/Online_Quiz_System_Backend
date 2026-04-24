@@ -10,6 +10,9 @@ import com.onlinequiz.online_quiz.entity.Question;
 import com.onlinequiz.online_quiz.repository.AnswerRepository;
 import com.onlinequiz.online_quiz.repository.AssignmentRepository;
 import com.onlinequiz.online_quiz.repository.AttemptRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.onlinequiz.online_quiz.entity.User;
+import com.onlinequiz.online_quiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,9 @@ public class AttemptService {
     @Autowired
     private AssignmentService assignmentService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // Start a new attempt
     @Transactional
     public AttemptDTO startAttempt(Long assignmentId) {
@@ -49,6 +55,13 @@ public class AttemptService {
         // Create new attempt
         Attempt attempt = new Attempt();
         attempt.setAssignment(assignment);
+        
+        // Set current user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        attempt.setUser(user);
+        
         attempt.setStartedAt(LocalDateTime.now());
         attempt.setStatus("IN_PROGRESS");
 
@@ -180,6 +193,15 @@ public class AttemptService {
         dto.setStatus(attempt.getStatus());
         dto.setScore(attempt.getScore());
         dto.setTotalPoints(attempt.getTotalPoints());
+        if (attempt.getUser() != null) {
+            dto.setStudentName(attempt.getUser().getFullName());
+        }
+
+        // Calculate time spent
+        if (attempt.getStartedAt() != null && attempt.getSubmittedAt() != null) {
+            long spentSeconds = Duration.between(attempt.getStartedAt(), attempt.getSubmittedAt()).getSeconds();
+            dto.setTimeSpentSeconds(spentSeconds);
+        }
 
         // Calculate remaining time in seconds
         if ("IN_PROGRESS".equals(attempt.getStatus())) {

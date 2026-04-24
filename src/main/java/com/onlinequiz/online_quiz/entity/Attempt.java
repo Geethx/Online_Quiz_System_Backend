@@ -15,12 +15,12 @@ public class Attempt {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "assignment_id", nullable = false)
+    @JoinColumn(name = "assignment_id", nullable = true)
     @JsonIgnore
     private Assignment assignment;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(name = "started_at", nullable = false)

@@ -13,6 +13,8 @@ public class AttemptDTO {
     private Integer score;
     private Integer totalPoints;
     private Integer remainingTimeSeconds;
+    private Long timeSpentSeconds;
+    private String studentName;
     private List<AnswerDTO> answers;
     
     public AttemptDTO() {}
@@ -43,6 +45,12 @@ public class AttemptDTO {
     
     public Integer getRemainingTimeSeconds() { return remainingTimeSeconds; }
     public void setRemainingTimeSeconds(Integer remainingTimeSeconds) { this.remainingTimeSeconds = remainingTimeSeconds; }
+    
+    public Long getTimeSpentSeconds() { return timeSpentSeconds; }
+    public void setTimeSpentSeconds(Long timeSpentSeconds) { this.timeSpentSeconds = timeSpentSeconds; }
+    
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
     
     public List<AnswerDTO> getAnswers() { return answers; }
     public void setAnswers(List<AnswerDTO> answers) { this.answers = answers; }
