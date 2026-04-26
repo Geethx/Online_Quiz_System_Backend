@@ -74,13 +74,17 @@ public class AttemptService {
         Attempt savedAttempt = attemptRepository.save(attempt);
 
         // Create answer records for all questions
-        for (Question question : assignment.getQuestions()) {
-            Answer answer = new Answer();
-            answer.setAttempt(savedAttempt);
-            answer.setQuestion(question);
-            answer.setMarkedForReview(false);
-            answerRepository.save(answer);
-        }
+        List<Answer> answers = assignment.getQuestions().stream()
+                .map(question -> {
+                    Answer answer = new Answer();
+                    answer.setAttempt(savedAttempt);
+                    answer.setQuestion(question);
+                    answer.setMarkedForReview(false);
+                    return answer;
+                })
+                .collect(Collectors.toList());
+        
+        answerRepository.saveAll(answers);
 
         return convertToDTO(savedAttempt);
     }
@@ -161,16 +165,16 @@ public class AttemptService {
                 Question question = answer.getQuestion();
                 boolean isCorrect = answer.getSelectedAnswer().equals(question.getCorrectOption());
                 answer.setIsCorrect(isCorrect);
-                answerRepository.save(answer);
 
                 if (isCorrect) {
                     score += question.getPoints();
                 }
             } else {
                 answer.setIsCorrect(false);
-                answerRepository.save(answer);
             }
         }
+        
+        answerRepository.saveAll(answers);
 
         return score;
     }
