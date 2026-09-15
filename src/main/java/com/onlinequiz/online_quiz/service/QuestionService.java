@@ -64,6 +64,7 @@ public class QuestionService {
         question.setOptionBImageUrl(createDTO.getOptionBImageUrl());
         question.setOptionCImageUrl(createDTO.getOptionCImageUrl());
         question.setOptionDImageUrl(createDTO.getOptionDImageUrl());
+        question.setGrade(createDTO.getGrade());
         
         Question savedQuestion = questionRepository.save(question);
         return convertToDTO(savedQuestion);
@@ -92,6 +93,7 @@ public class QuestionService {
         question.setOptionBImageUrl(updateDTO.getOptionBImageUrl());
         question.setOptionCImageUrl(updateDTO.getOptionCImageUrl());
         question.setOptionDImageUrl(updateDTO.getOptionDImageUrl());
+        question.setGrade(updateDTO.getGrade());
         
         Question updatedQuestion = questionRepository.save(question);
         return convertToDTO(updatedQuestion);
@@ -113,6 +115,7 @@ public class QuestionService {
         if (question.getSubject() != null) {
             dto.setSubjectId(question.getSubject().getId());
         }
+        dto.setGrade(question.getGrade());
         dto.setText(question.getText());
         dto.setOptionA(question.getOptionA());
         dto.setOptionB(question.getOptionB());
@@ -136,6 +139,7 @@ public class QuestionService {
         if (question.getSubject() != null) {
             dto.setSubjectId(question.getSubject().getId());
         }
+        dto.setGrade(question.getGrade());
         dto.setText(question.getText());
         dto.setOptionA(question.getOptionA());
         dto.setOptionB(question.getOptionB());

@@ -8,6 +8,8 @@ public class CreateSubjectDTO {
     private String name;
     
     private String description;
+
+    private java.util.Set<Integer> grades;
     
     // Getters and Setters
     public String getName() { return name; }
@@ -15,4 +17,7 @@ public class CreateSubjectDTO {
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public java.util.Set<Integer> getGrades() { return grades; }
+    public void setGrades(java.util.Set<Integer> grades) { this.grades = grades; }
 }

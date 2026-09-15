@@ -35,6 +35,11 @@ public class CreateQuestionDTO {
     @NotNull(message = "Subject ID is required")
     private Long subjectId;
 
+    @NotNull(message = "Grade is required")
+    @Min(value = 6, message = "Grade must be between 6 and 11")
+    @Max(value = 11, message = "Grade must be between 6 and 11")
+    private Integer grade;
+
     private String questionImageUrl;
     private String optionAImageUrl;
     private String optionBImageUrl;
@@ -112,6 +117,14 @@ public class CreateQuestionDTO {
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public Integer getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Integer grade) {
+        this.grade = grade;
     }
 
     public String getQuestionImageUrl() {

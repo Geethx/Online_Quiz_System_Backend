@@ -4,6 +4,7 @@ import com.onlinequiz.online_quiz.dto.*;
 import com.onlinequiz.online_quiz.entity.Attempt;
 import com.onlinequiz.online_quiz.entity.Subject;
 import com.onlinequiz.online_quiz.repository.AttemptRepository;
+import com.onlinequiz.online_quiz.repository.EnrollmentRepository;
 import com.onlinequiz.online_quiz.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class AnalyticsService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
     @Autowired
     private AttemptService attemptService;
@@ -88,7 +92,15 @@ public class AnalyticsService {
         analytics.setSubject(subjectDTO);
 
         analytics.setTotalAssignments(subject.getAssignments().size());
-        analytics.setTotalStudents(subject.getStudents().size());
+        
+        long totalStudents = enrollmentRepository.findBySubjectIdAndGrade(subjectId, null) // Wait, we might need a general findBySubjectId in EnrollmentRepository
+                .size(); // let's just get the count using the repository. But we need to add findBySubjectId first.
+        // Actually, we can just do enrollmentRepository.findAll().stream().filter(e -> e.getSubject().getId().equals(subjectId)).count();
+        // Or add a method to EnrollmentRepository.
+        // Let's use the stream for now to avoid altering the repository if possible, or I'll just change it here.
+        analytics.setTotalStudents((int) enrollmentRepository.findAll().stream()
+                .filter(e -> e.getSubject().getId().equals(subjectId) && "APPROVED".equals(e.getStatus()))
+                .count());
 
         if (!attempts.isEmpty()) {
             double totalPercentage = 0;

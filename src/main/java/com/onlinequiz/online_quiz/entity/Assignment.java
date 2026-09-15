@@ -29,6 +29,9 @@ public class Assignment {
     @Column(nullable = false)
     private Integer duration; // in minutes
 
+    @Column(nullable = false)
+    private Integer grade; // 6, 7, 8, 9, 10, 11
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -109,6 +112,14 @@ public class Assignment {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public Integer getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Integer grade) {
+        this.grade = grade;
     }
 
     public LocalDateTime getCreatedAt() {

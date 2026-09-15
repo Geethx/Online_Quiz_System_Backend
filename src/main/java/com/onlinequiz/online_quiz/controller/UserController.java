@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "https://studysprintonline.vercel.app"})
 public class UserController {
 
     @Autowired
@@ -29,11 +29,5 @@ public class UserController {
         return ResponseEntity.ok(userService.getStudentById(id));
     }
 
-    @PutMapping("/students/{id}/subjects")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDTO> updateStudentSubjects(
-            @PathVariable Long id,
-            @RequestBody List<Long> subjectIds) {
-        return ResponseEntity.ok(userService.updateStudentSubjects(id, subjectIds));
-    }
+
 }

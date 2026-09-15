@@ -11,6 +11,7 @@ import com.onlinequiz.online_quiz.repository.QuestionRepository;
 import com.onlinequiz.online_quiz.repository.SubjectRepository;
 import com.onlinequiz.online_quiz.repository.UserRepository;
 import com.onlinequiz.online_quiz.entity.User;
+import com.onlinequiz.online_quiz.entity.Enrollment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,12 +56,18 @@ public class AssignmentService {
             User user = userRepository.findByUsername(username)
                     .orElse(null);
             if (user != null && user.getRole().name().equals("STUDENT")) {
-                Set<Long> enrolledSubjectIds = user.getSubjects().stream()
-                        .map(Subject::getId)
-                        .collect(Collectors.toSet());
+                List<Enrollment> approvedEnrollments = user.getEnrollments().stream()
+                        .filter(e -> "APPROVED".equals(e.getStatus()))
+                        .collect(Collectors.toList());
                 
                 activeAssignments = activeAssignments.stream()
-                        .filter(a -> a.getSubject() != null && enrolledSubjectIds.contains(a.getSubject().getId()))
+                        .filter(a -> {
+                            if (a.getSubject() == null) return false;
+                            return approvedEnrollments.stream().anyMatch(e -> 
+                                e.getSubject().getId().equals(a.getSubject().getId()) && 
+                                e.getGrade().equals(a.getGrade())
+                            );
+                        })
                         .collect(Collectors.toList());
             }
         }
@@ -116,6 +123,7 @@ public class AssignmentService {
         assignment.setStartTime(createDTO.getStartTime());
         assignment.setEndTime(createDTO.getEndTime());
         assignment.setDuration(createDTO.getDuration());
+        assignment.setGrade(createDTO.getGrade());
 
         // Add selected questions
         Set<Question> questions = new HashSet<>();
@@ -157,6 +165,7 @@ public class AssignmentService {
         assignment.setStartTime(updateDTO.getStartTime());
         assignment.setEndTime(updateDTO.getEndTime());
         assignment.setDuration(updateDTO.getDuration());
+        assignment.setGrade(updateDTO.getGrade());
 
         // Update questions
         Set<Question> questions = new HashSet<>();
@@ -192,6 +201,7 @@ public class AssignmentService {
         dto.setStartTime(assignment.getStartTime());
         dto.setEndTime(assignment.getEndTime());
         dto.setDuration(assignment.getDuration());
+        dto.setGrade(assignment.getGrade());
 
         // Convert questions (with answers for admin view)
         List<QuestionDTO> questionDTOs = assignment.getQuestions().stream()

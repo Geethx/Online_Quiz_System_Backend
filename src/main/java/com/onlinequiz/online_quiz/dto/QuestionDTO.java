@@ -10,6 +10,7 @@ public class QuestionDTO {
     private String difficulty;
     private Integer points;
     private Long subjectId;
+    private Integer grade;
 
     // For admin view only - don't send to students during attempt
     private Integer correctOption;
@@ -94,6 +95,14 @@ public class QuestionDTO {
 
     public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public Integer getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Integer grade) {
+        this.grade = grade;
     }
 
     public Integer getCorrectOption() {

@@ -11,7 +11,7 @@ public class UserDTO {
     private String email;
     private Role role;
     private LocalDateTime createdAt;
-    private List<Long> subjectIds;
+    private List<EnrollmentDTO> enrollments;
     
     // Constructors
     public UserDTO() {}
@@ -35,6 +35,6 @@ public class UserDTO {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public List<Long> getSubjectIds() { return subjectIds; }
-    public void setSubjectIds(List<Long> subjectIds) { this.subjectIds = subjectIds; }
+    public List<EnrollmentDTO> getEnrollments() { return enrollments; }
+    public void setEnrollments(List<EnrollmentDTO> enrollments) { this.enrollments = enrollments; }
 }

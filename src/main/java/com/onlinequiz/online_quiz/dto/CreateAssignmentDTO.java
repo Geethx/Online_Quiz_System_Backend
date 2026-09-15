@@ -1,6 +1,10 @@
 package com.onlinequiz.online_quiz.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +27,11 @@ public class CreateAssignmentDTO {
     
     @NotNull(message = "Subject ID is required")
     private Long subjectId;
+
+    @NotNull(message = "Grade is required")
+    @Min(value = 6, message = "Grade must be between 6 and 11")
+    @Max(value = 11, message = "Grade must be between 6 and 11")
+    private Integer grade;
     
     @NotEmpty(message = "At least one question must be selected")
     private List<Long> questionIds;
@@ -45,6 +54,9 @@ public class CreateAssignmentDTO {
     
     public Long getSubjectId() { return subjectId; }
     public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
+
+    public Integer getGrade() { return grade; }
+    public void setGrade(Integer grade) { this.grade = grade; }
     
     public List<Long> getQuestionIds() { return questionIds; }
     public void setQuestionIds(List<Long> questionIds) { this.questionIds = questionIds; }

@@ -78,6 +78,9 @@ public class Question {
     @Column(name = "option_d_image_url", columnDefinition = "TEXT")
     private String optionDImageUrl;
 
+    @Column(nullable = false)
+    private Integer grade; // 6, 7, 8, 9, 10, 11
+
     // Constructors
     public Question() {
     }
@@ -217,6 +220,14 @@ public class Question {
 
     public void setOptionDImageUrl(String optionDImageUrl) {
         this.optionDImageUrl = optionDImageUrl;
+    }
+
+    public Integer getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Integer grade) {
+        this.grade = grade;
     }
 
     public Subject getSubject() {

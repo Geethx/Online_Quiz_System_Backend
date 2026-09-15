@@ -41,6 +41,9 @@ public class SubjectService {
         Subject subject = new Subject();
         subject.setName(createDTO.getName());
         subject.setDescription(createDTO.getDescription());
+        if (createDTO.getGrades() != null) {
+            subject.setGrades(createDTO.getGrades());
+        }
         
         Subject savedSubject = subjectRepository.save(subject);
         return convertToDTO(savedSubject);
@@ -58,6 +61,10 @@ public class SubjectService {
         
         subject.setName(updateDTO.getName());
         subject.setDescription(updateDTO.getDescription());
+        if (updateDTO.getGrades() != null) {
+            subject.getGrades().clear();
+            subject.getGrades().addAll(updateDTO.getGrades());
+        }
         
         Subject updatedSubject = subjectRepository.save(subject);
         return convertToDTO(updatedSubject);
@@ -78,6 +85,7 @@ public class SubjectService {
         dto.setId(subject.getId());
         dto.setName(subject.getName());
         dto.setDescription(subject.getDescription());
+        dto.setGrades(subject.getGrades());
         dto.setCreatedAt(subject.getCreatedAt());
         return dto;
     }

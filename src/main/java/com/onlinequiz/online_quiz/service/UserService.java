@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.onlinequiz.online_quiz.dto.EnrollmentDTO;
+import com.onlinequiz.online_quiz.entity.Enrollment;
 
 @Service
 public class UserService {
@@ -34,26 +36,6 @@ public class UserService {
         return convertToDTO(user);
     }
 
-    @Transactional
-    public UserDTO updateStudentSubjects(Long studentId, List<Long> subjectIds) {
-        User user = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + studentId));
-
-        if (user.getRole() != Role.STUDENT) {
-            throw new RuntimeException("User is not a student");
-        }
-
-        user.getSubjects().clear();
-        for (Long subjectId : subjectIds) {
-            Subject subject = subjectRepository.findById(subjectId)
-                    .orElseThrow(() -> new RuntimeException("Subject not found with id: " + subjectId));
-            user.getSubjects().add(subject);
-        }
-
-        User updatedUser = userRepository.save(user);
-        return convertToDTO(updatedUser);
-    }
-
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -63,13 +45,27 @@ public class UserService {
         dto.setRole(user.getRole());
         dto.setCreatedAt(user.getCreatedAt());
 
-        if (user.getSubjects() != null) {
-            List<Long> subjectIds = user.getSubjects().stream()
-                    .map(Subject::getId)
+        if (user.getEnrollments() != null) {
+            List<EnrollmentDTO> enrollmentDTOs = user.getEnrollments().stream()
+                    .map(this::convertEnrollmentToDTO)
                     .collect(Collectors.toList());
-            dto.setSubjectIds(subjectIds);
+            dto.setEnrollments(enrollmentDTOs);
         }
 
+        return dto;
+    }
+
+    private EnrollmentDTO convertEnrollmentToDTO(Enrollment enrollment) {
+        EnrollmentDTO dto = new EnrollmentDTO();
+        dto.setId(enrollment.getId());
+        dto.setStudentId(enrollment.getStudent().getId());
+        dto.setStudentName(enrollment.getStudent().getFullName());
+        dto.setSubjectId(enrollment.getSubject().getId());
+        dto.setSubjectName(enrollment.getSubject().getName());
+        dto.setGrade(enrollment.getGrade());
+        dto.setStatus(enrollment.getStatus());
+        dto.setCreatedAt(enrollment.getCreatedAt());
+        dto.setUpdatedAt(enrollment.getUpdatedAt());
         return dto;
     }
 }

@@ -20,6 +20,11 @@ public class Subject {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "subject_grades", joinColumns = @JoinColumn(name = "subject_id"))
+    @Column(name = "grade")
+    private Set<Integer> grades = new HashSet<>();
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -34,9 +39,9 @@ public class Subject {
     @JsonIgnore
     private Set<Assignment> assignments = new HashSet<>();
 
-    @ManyToMany(mappedBy = "subjects")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<User> students = new HashSet<>();
+    private Set<Enrollment> enrollments = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -62,6 +67,9 @@ public class Subject {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public Set<Integer> getGrades() { return grades; }
+    public void setGrades(Set<Integer> grades) { this.grades = grades; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
@@ -74,6 +82,6 @@ public class Subject {
     public Set<Assignment> getAssignments() { return assignments; }
     public void setAssignments(Set<Assignment> assignments) { this.assignments = assignments; }
 
-    public Set<User> getStudents() { return students; }
-    public void setStudents(Set<User> students) { this.students = students; }
+    public Set<Enrollment> getEnrollments() { return enrollments; }
+    public void setEnrollments(Set<Enrollment> enrollments) { this.enrollments = enrollments; }
 }
