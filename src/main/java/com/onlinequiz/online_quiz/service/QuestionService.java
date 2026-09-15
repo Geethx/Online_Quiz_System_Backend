@@ -3,7 +3,9 @@ package com.onlinequiz.online_quiz.service;
 import com.onlinequiz.online_quiz.dto.CreateQuestionDTO;
 import com.onlinequiz.online_quiz.dto.QuestionDTO;
 import com.onlinequiz.online_quiz.entity.Question;
+import com.onlinequiz.online_quiz.entity.Subject;
 import com.onlinequiz.online_quiz.repository.QuestionRepository;
+import com.onlinequiz.online_quiz.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class QuestionService {
     
     @Autowired
     private QuestionRepository questionRepository;
+    
+    @Autowired
+    private SubjectRepository subjectRepository;
     
     // Get all questions
     public List<QuestionDTO> getAllQuestions() {
@@ -41,7 +46,11 @@ public class QuestionService {
     // Create new question
     @Transactional
     public QuestionDTO createQuestion(CreateQuestionDTO createDTO) {
+        Subject subject = subjectRepository.findById(createDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
         Question question = new Question();
+        question.setSubject(subject);
         question.setText(createDTO.getText());
         question.setOptionA(createDTO.getOptionA());
         question.setOptionB(createDTO.getOptionB());
@@ -50,6 +59,11 @@ public class QuestionService {
         question.setCorrectOption(createDTO.getCorrectOption());
         question.setDifficulty(createDTO.getDifficulty());
         question.setPoints(createDTO.getPoints());
+        question.setQuestionImageUrl(createDTO.getQuestionImageUrl());
+        question.setOptionAImageUrl(createDTO.getOptionAImageUrl());
+        question.setOptionBImageUrl(createDTO.getOptionBImageUrl());
+        question.setOptionCImageUrl(createDTO.getOptionCImageUrl());
+        question.setOptionDImageUrl(createDTO.getOptionDImageUrl());
         
         Question savedQuestion = questionRepository.save(question);
         return convertToDTO(savedQuestion);
@@ -61,6 +75,10 @@ public class QuestionService {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
         
+        Subject subject = subjectRepository.findById(updateDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        
+        question.setSubject(subject);
         question.setText(updateDTO.getText());
         question.setOptionA(updateDTO.getOptionA());
         question.setOptionB(updateDTO.getOptionB());
@@ -69,6 +87,11 @@ public class QuestionService {
         question.setCorrectOption(updateDTO.getCorrectOption());
         question.setDifficulty(updateDTO.getDifficulty());
         question.setPoints(updateDTO.getPoints());
+        question.setQuestionImageUrl(updateDTO.getQuestionImageUrl());
+        question.setOptionAImageUrl(updateDTO.getOptionAImageUrl());
+        question.setOptionBImageUrl(updateDTO.getOptionBImageUrl());
+        question.setOptionCImageUrl(updateDTO.getOptionCImageUrl());
+        question.setOptionDImageUrl(updateDTO.getOptionDImageUrl());
         
         Question updatedQuestion = questionRepository.save(question);
         return convertToDTO(updatedQuestion);
@@ -87,6 +110,9 @@ public class QuestionService {
     private QuestionDTO convertToDTO(Question question) {
         QuestionDTO dto = new QuestionDTO();
         dto.setId(question.getId());
+        if (question.getSubject() != null) {
+            dto.setSubjectId(question.getSubject().getId());
+        }
         dto.setText(question.getText());
         dto.setOptionA(question.getOptionA());
         dto.setOptionB(question.getOptionB());
@@ -95,6 +121,11 @@ public class QuestionService {
         dto.setCorrectOption(question.getCorrectOption());
         dto.setDifficulty(question.getDifficulty());
         dto.setPoints(question.getPoints());
+        dto.setQuestionImageUrl(question.getQuestionImageUrl());
+        dto.setOptionAImageUrl(question.getOptionAImageUrl());
+        dto.setOptionBImageUrl(question.getOptionBImageUrl());
+        dto.setOptionCImageUrl(question.getOptionCImageUrl());
+        dto.setOptionDImageUrl(question.getOptionDImageUrl());
         return dto;
     }
     
@@ -102,6 +133,9 @@ public class QuestionService {
     public QuestionDTO convertToDTOWithoutAnswer(Question question) {
         QuestionDTO dto = new QuestionDTO();
         dto.setId(question.getId());
+        if (question.getSubject() != null) {
+            dto.setSubjectId(question.getSubject().getId());
+        }
         dto.setText(question.getText());
         dto.setOptionA(question.getOptionA());
         dto.setOptionB(question.getOptionB());
@@ -109,6 +143,11 @@ public class QuestionService {
         dto.setOptionD(question.getOptionD());
         dto.setDifficulty(question.getDifficulty());
         dto.setPoints(question.getPoints());
+        dto.setQuestionImageUrl(question.getQuestionImageUrl());
+        dto.setOptionAImageUrl(question.getOptionAImageUrl());
+        dto.setOptionBImageUrl(question.getOptionBImageUrl());
+        dto.setOptionCImageUrl(question.getOptionCImageUrl());
+        dto.setOptionDImageUrl(question.getOptionDImageUrl());
         // DO NOT set correctOption - keep it hidden during attempt
         return dto;
     }

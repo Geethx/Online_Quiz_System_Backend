@@ -10,6 +10,7 @@ public class AssignmentDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Integer duration;
+    private Long subjectId;
     private List<QuestionDTO> questions;
     private Integer totalPoints;
     private Boolean isAvailable;
@@ -35,6 +36,9 @@ public class AssignmentDTO {
     
     public Integer getDuration() { return duration; }
     public void setDuration(Integer duration) { this.duration = duration; }
+    
+    public Long getSubjectId() { return subjectId; }
+    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
     
     public List<QuestionDTO> getQuestions() { return questions; }
     public void setQuestions(List<QuestionDTO> questions) { this.questions = questions; }

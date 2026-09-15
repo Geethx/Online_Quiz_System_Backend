@@ -48,6 +48,10 @@ public class Question {
     @JsonIgnore
     private Set<Assignment> assignments = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -58,6 +62,21 @@ public class Question {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Column(name = "question_image_url", columnDefinition = "TEXT")
+    private String questionImageUrl;
+
+    @Column(name = "option_a_image_url", columnDefinition = "TEXT")
+    private String optionAImageUrl;
+
+    @Column(name = "option_b_image_url", columnDefinition = "TEXT")
+    private String optionBImageUrl;
+
+    @Column(name = "option_c_image_url", columnDefinition = "TEXT")
+    private String optionCImageUrl;
+
+    @Column(name = "option_d_image_url", columnDefinition = "TEXT")
+    private String optionDImageUrl;
 
     // Constructors
     public Question() {
@@ -159,4 +178,53 @@ public class Question {
     public void setAssignments(Set<Assignment> assignments) {
         this.assignments = assignments;
     }
+
+    public String getQuestionImageUrl() {
+        return questionImageUrl;
+    }
+
+    public void setQuestionImageUrl(String questionImageUrl) {
+        this.questionImageUrl = questionImageUrl;
+    }
+
+    public String getOptionAImageUrl() {
+        return optionAImageUrl;
+    }
+
+    public void setOptionAImageUrl(String optionAImageUrl) {
+        this.optionAImageUrl = optionAImageUrl;
+    }
+
+    public String getOptionBImageUrl() {
+        return optionBImageUrl;
+    }
+
+    public void setOptionBImageUrl(String optionBImageUrl) {
+        this.optionBImageUrl = optionBImageUrl;
+    }
+
+    public String getOptionCImageUrl() {
+        return optionCImageUrl;
+    }
+
+    public void setOptionCImageUrl(String optionCImageUrl) {
+        this.optionCImageUrl = optionCImageUrl;
+    }
+
+    public String getOptionDImageUrl() {
+        return optionDImageUrl;
+    }
+
+    public void setOptionDImageUrl(String optionDImageUrl) {
+        this.optionDImageUrl = optionDImageUrl;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
 }

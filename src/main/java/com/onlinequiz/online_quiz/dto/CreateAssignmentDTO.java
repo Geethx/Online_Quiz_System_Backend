@@ -21,6 +21,9 @@ public class CreateAssignmentDTO {
     @Min(value = 1, message = "Duration must be at least 1 minute")
     private Integer duration;
     
+    @NotNull(message = "Subject ID is required")
+    private Long subjectId;
+    
     @NotEmpty(message = "At least one question must be selected")
     private List<Long> questionIds;
     
@@ -39,6 +42,9 @@ public class CreateAssignmentDTO {
     
     public Integer getDuration() { return duration; }
     public void setDuration(Integer duration) { this.duration = duration; }
+    
+    public Long getSubjectId() { return subjectId; }
+    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
     
     public List<Long> getQuestionIds() { return questionIds; }
     public void setQuestionIds(List<Long> questionIds) { this.questionIds = questionIds; }

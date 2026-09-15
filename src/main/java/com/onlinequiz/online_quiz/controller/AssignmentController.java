@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -28,8 +29,9 @@ public class AssignmentController {
     
     // Get available assignments
     @GetMapping("/available")
-    public ResponseEntity<List<AssignmentDTO>> getAvailableAssignments() {
-        List<AssignmentDTO> assignments = assignmentService.getAvailableAssignments();
+    public ResponseEntity<List<AssignmentDTO>> getAvailableAssignments(Authentication authentication) {
+        String username = authentication != null ? authentication.getName() : null;
+        List<AssignmentDTO> assignments = assignmentService.getAvailableAssignments(username);
         return ResponseEntity.ok(assignments);
     }
     

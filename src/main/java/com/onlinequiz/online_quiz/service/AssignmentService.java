@@ -5,8 +5,12 @@ import com.onlinequiz.online_quiz.dto.CreateAssignmentDTO;
 import com.onlinequiz.online_quiz.dto.QuestionDTO;
 import com.onlinequiz.online_quiz.entity.Assignment;
 import com.onlinequiz.online_quiz.entity.Question;
+import com.onlinequiz.online_quiz.entity.Subject;
 import com.onlinequiz.online_quiz.repository.AssignmentRepository;
 import com.onlinequiz.online_quiz.repository.QuestionRepository;
+import com.onlinequiz.online_quiz.repository.SubjectRepository;
+import com.onlinequiz.online_quiz.repository.UserRepository;
+import com.onlinequiz.online_quiz.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,12 @@ public class AssignmentService {
     @Autowired
     private QuestionService questionService;
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     // Get all assignments
     public List<AssignmentDTO> getAllAssignments() {
         return assignmentRepository.findAllByOrderByCreatedAtDesc().stream()
@@ -37,9 +47,25 @@ public class AssignmentService {
     }
 
     // Get available assignments (based on current time)
-    public List<AssignmentDTO> getAvailableAssignments() {
+    public List<AssignmentDTO> getAvailableAssignments(String username) {
         LocalDateTime now = LocalDateTime.now();
-        return assignmentRepository.findAvailableAssignments(now).stream()
+        List<Assignment> activeAssignments = assignmentRepository.findAvailableAssignments(now);
+
+        if (username != null) {
+            User user = userRepository.findByUsername(username)
+                    .orElse(null);
+            if (user != null && user.getRole().name().equals("STUDENT")) {
+                Set<Long> enrolledSubjectIds = user.getSubjects().stream()
+                        .map(Subject::getId)
+                        .collect(Collectors.toSet());
+                
+                activeAssignments = activeAssignments.stream()
+                        .filter(a -> a.getSubject() != null && enrolledSubjectIds.contains(a.getSubject().getId()))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return activeAssignments.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -80,6 +106,11 @@ public class AssignmentService {
         }
 
         Assignment assignment = new Assignment();
+        
+        Subject subject = subjectRepository.findById(createDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        assignment.setSubject(subject);
+        
         assignment.setName(createDTO.getName());
         assignment.setDescription(createDTO.getDescription());
         assignment.setStartTime(createDTO.getStartTime());
@@ -117,6 +148,10 @@ public class AssignmentService {
                     + " minutes) cannot exceed the time window (" + minutesBetween + " minutes)");
         }
 
+        Subject subject = subjectRepository.findById(updateDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        assignment.setSubject(subject);
+
         assignment.setName(updateDTO.getName());
         assignment.setDescription(updateDTO.getDescription());
         assignment.setStartTime(updateDTO.getStartTime());
@@ -149,6 +184,9 @@ public class AssignmentService {
     private AssignmentDTO convertToDTO(Assignment assignment) {
         AssignmentDTO dto = new AssignmentDTO();
         dto.setId(assignment.getId());
+        if (assignment.getSubject() != null) {
+            dto.setSubjectId(assignment.getSubject().getId());
+        }
         dto.setName(assignment.getName());
         dto.setDescription(assignment.getDescription());
         dto.setStartTime(assignment.getStartTime());

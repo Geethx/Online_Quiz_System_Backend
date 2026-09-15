@@ -1,5 +1,6 @@
 package com.onlinequiz.online_quiz.repository;
 
+import com.onlinequiz.online_quiz.entity.Role;
 import com.onlinequiz.online_quiz.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
+    java.util.List<User> findByRole(Role role);
 }

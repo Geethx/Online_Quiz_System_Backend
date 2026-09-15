@@ -11,4 +11,6 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
     List<Attempt> findByAssignmentId(Long assignmentId);
     Optional<Attempt> findByIdAndStatus(Long id, String status);
     List<Attempt> findByStatus(String status);
+    List<Attempt> findByUserId(Long userId);
+    List<Attempt> findByAssignmentSubjectId(Long subjectId);
 }

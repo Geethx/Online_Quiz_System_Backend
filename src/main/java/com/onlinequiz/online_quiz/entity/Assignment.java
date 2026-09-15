@@ -43,6 +43,10 @@ public class Assignment {
     @JsonIgnore
     private Set<Attempt> attempts = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -137,5 +141,13 @@ public class Assignment {
 
     public void setAttempts(Set<Attempt> attempts) {
         this.attempts = attempts;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 }
