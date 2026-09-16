@@ -86,6 +86,13 @@ public class EnrollmentService {
         return convertToDTO(saved);
     }
 
+    @Transactional
+    public void deleteEnrollment(Long id) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found"));
+        enrollmentRepository.delete(enrollment);
+    }
+
     public List<EnrollmentDTO> getApprovedEnrollmentsBySubjectAndGrade(Long subjectId, Integer grade) {
         List<Enrollment> enrollments;
         if (grade != null) {

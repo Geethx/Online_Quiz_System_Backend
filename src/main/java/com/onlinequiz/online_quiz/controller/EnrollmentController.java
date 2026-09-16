@@ -62,4 +62,11 @@ public class EnrollmentController {
             @RequestParam(required = false) Integer grade) {
         return ResponseEntity.ok(enrollmentService.getApprovedEnrollmentsBySubjectAndGrade(subjectId, grade));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteEnrollment(@PathVariable Long id) {
+        enrollmentService.deleteEnrollment(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -13,40 +13,40 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions")
-@CrossOrigin(origins = {"http://localhost:5173", "https://studysprintonline.vercel.app"})
+@CrossOrigin(origins = { "http://localhost:5173", "https://studysprintonline.vercel.app" })
 public class QuestionController {
-    
+
     @Autowired
     private QuestionService questionService;
-    
+
     // Get all questions
     @GetMapping
     public ResponseEntity<List<QuestionDTO>> getAllQuestions() {
         List<QuestionDTO> questions = questionService.getAllQuestions();
         return ResponseEntity.ok(questions);
     }
-    
+
     // Get question by ID
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable Long id) {
         QuestionDTO question = questionService.getQuestionById(id);
         return ResponseEntity.ok(question);
     }
-    
+
     // Get questions by difficulty
     @GetMapping("/difficulty/{difficulty}")
     public ResponseEntity<List<QuestionDTO>> getQuestionsByDifficulty(@PathVariable String difficulty) {
         List<QuestionDTO> questions = questionService.getQuestionsByDifficulty(difficulty.toUpperCase());
         return ResponseEntity.ok(questions);
     }
-    
+
     // Create new question
     @PostMapping
     public ResponseEntity<QuestionDTO> createQuestion(@Valid @RequestBody CreateQuestionDTO createDTO) {
         QuestionDTO created = questionService.createQuestion(createDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-    
+
     // Update question
     @PutMapping("/{id}")
     public ResponseEntity<QuestionDTO> updateQuestion(
@@ -55,7 +55,7 @@ public class QuestionController {
         QuestionDTO updated = questionService.updateQuestion(id, updateDTO);
         return ResponseEntity.ok(updated);
     }
-    
+
     // Delete question
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
