@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlinequiz.online_quiz.dto.CreateQuestionDTO;
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -28,7 +30,15 @@ public class AIService {
     private final ObjectMapper objectMapper;
 
     public AIService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
-        this.webClient = webClientBuilder.baseUrl("https://generativelanguage.googleapis.com").build();
+        // Increase buffer size to 16MB for large API responses
+        ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024))
+                .build();
+
+        this.webClient = webClientBuilder
+                .baseUrl("https://generativelanguage.googleapis.com")
+                .exchangeStrategies(strategies)
+                .build();
         this.objectMapper = objectMapper;
     }
 
@@ -44,11 +54,9 @@ public class AIService {
         Map<String, Object> requestBody = new HashMap<>();
 
         if (contentType != null && contentType.equals("application/pdf")) {
-            // Option 1: PDF -> Extract Text
             String extractedText = extractTextFromPdf(file);
             requestBody = buildTextRequestBody(prompt + "\n\nDocument Text:\n" + extractedText);
         } else if (contentType != null && contentType.startsWith("image/")) {
-            // Option 2: Image -> Base64
             String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
             requestBody = buildImageRequestBody(prompt, base64Image, contentType);
         } else {
@@ -60,7 +68,7 @@ public class AIService {
     }
 
     private String extractTextFromPdf(MultipartFile file) throws IOException {
-        try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
             PDFTextStripper stripper = new PDFTextStripper();
             return stripper.getText(document);
         }
@@ -95,19 +103,33 @@ public class AIService {
             throw new RuntimeException("Gemini API Key is not configured. Please add a valid key in application.properties.");
         }
 
+        System.out.println("[AIService] Using API key: " + geminiApiKey.substring(0, Math.min(10, geminiApiKey.length())) + "...");
+        System.out.println("[AIService] Calling Gemini API with model: gemini-3.5-flash");
+
         JsonNode response = webClient.post()
-                .uri("/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey)
+                .uri("/v1beta/models/gemini-3.5-flash:generateContent?key=" + geminiApiKey)
+                .header("Content-Type", "application/json")
                 .bodyValue(requestBody)
                 .retrieve()
+                .onStatus(HttpStatusCode::isError, clientResponse -> {
+                    return clientResponse.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                System.err.println("[AIService] Gemini API Error: HTTP " + clientResponse.statusCode() + " - " + errorBody);
+                                return Mono.error(new RuntimeException(
+                                        "Gemini API Error (HTTP " + clientResponse.statusCode() + "): " + errorBody));
+                            });
+                })
                 .bodyToMono(JsonNode.class)
                 .block();
+
+        System.out.println("[AIService] Gemini API response received successfully");
 
         if (response != null && response.has("candidates") && response.get("candidates").size() > 0) {
             return response.get("candidates").get(0)
                     .get("content").get("parts").get(0)
                     .get("text").asText();
         }
-        throw new RuntimeException("Failed to get a valid response from Gemini API");
+        throw new RuntimeException("Failed to get a valid response from Gemini API. Response: " + response);
     }
 
     private List<CreateQuestionDTO> parseGeminiResponse(String geminiText) throws Exception {
