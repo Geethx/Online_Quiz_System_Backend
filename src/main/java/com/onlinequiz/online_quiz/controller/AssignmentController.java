@@ -1,6 +1,7 @@
 package com.onlinequiz.online_quiz.controller;
 
 import com.onlinequiz.online_quiz.dto.AssignmentDTO;
+import com.onlinequiz.online_quiz.dto.BulkCreateAssignmentDTO;
 import com.onlinequiz.online_quiz.dto.CreateAssignmentDTO;
 import com.onlinequiz.online_quiz.service.AssignmentService;
 import jakarta.validation.Valid;
@@ -46,6 +47,13 @@ public class AssignmentController {
     @PostMapping
     public ResponseEntity<AssignmentDTO> createAssignment(@Valid @RequestBody CreateAssignmentDTO createDTO) {
         AssignmentDTO created = assignmentService.createAssignment(createDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+    
+    // Bulk create assignment with questions
+    @PostMapping("/bulk")
+    public ResponseEntity<AssignmentDTO> bulkCreateAssignment(@Valid @RequestBody BulkCreateAssignmentDTO createDTO) {
+        AssignmentDTO created = assignmentService.bulkCreateAssignment(createDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
     

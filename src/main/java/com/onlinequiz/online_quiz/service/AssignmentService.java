@@ -1,7 +1,9 @@
 package com.onlinequiz.online_quiz.service;
 
 import com.onlinequiz.online_quiz.dto.AssignmentDTO;
+import com.onlinequiz.online_quiz.dto.BulkCreateAssignmentDTO;
 import com.onlinequiz.online_quiz.dto.CreateAssignmentDTO;
+import com.onlinequiz.online_quiz.dto.CreateQuestionDTO;
 import com.onlinequiz.online_quiz.dto.QuestionDTO;
 import com.onlinequiz.online_quiz.entity.Assignment;
 import com.onlinequiz.online_quiz.entity.Question;
@@ -178,6 +180,43 @@ public class AssignmentService {
 
         Assignment updatedAssignment = assignmentRepository.save(assignment);
         return convertToDTO(updatedAssignment);
+    }
+
+    // Bulk create assignment with new questions
+    @Transactional
+    public AssignmentDTO bulkCreateAssignment(BulkCreateAssignmentDTO createDTO) {
+        if (createDTO.getStartTime().isAfter(createDTO.getEndTime())) {
+            throw new RuntimeException("Start time must be before end time");
+        }
+
+        long minutesBetween = java.time.Duration.between(createDTO.getStartTime(), createDTO.getEndTime()).toMinutes();
+        if (createDTO.getDuration() > minutesBetween) {
+            throw new RuntimeException("Duration cannot exceed the time window");
+        }
+
+        Subject subject = subjectRepository.findById(createDTO.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        Assignment assignment = new Assignment();
+        assignment.setName(createDTO.getName());
+        assignment.setDescription(createDTO.getDescription());
+        assignment.setStartTime(createDTO.getStartTime());
+        assignment.setEndTime(createDTO.getEndTime());
+        assignment.setDuration(createDTO.getDuration());
+        assignment.setSubject(subject);
+        assignment.setGrade(createDTO.getGrade());
+
+        Set<Question> questions = new HashSet<>();
+        for (CreateQuestionDTO qDto : createDTO.getQuestions()) {
+            QuestionDTO createdQuestionDto = questionService.createQuestion(qDto);
+            Question question = questionRepository.findById(createdQuestionDto.getId())
+                    .orElseThrow(() -> new RuntimeException("Error retrieving created question"));
+            questions.add(question);
+        }
+        
+        assignment.setQuestions(questions);
+        Assignment savedAssignment = assignmentRepository.save(assignment);
+        return convertToDTO(savedAssignment);
     }
 
     // Delete assignment
